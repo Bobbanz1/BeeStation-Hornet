@@ -48,6 +48,10 @@ Credit dupes that require a lot of manual work shouldn't be removed, unless they
 				report.exported_atoms += " [thing.name]"
 				break
 		if(!dry_run && (sold || delete_unsold))
+			if(isobj(thing) && !sold)
+				var/obj/condition = thing
+				if(condition.resistance_flags & INDESTRUCTIBLE)
+					continue
 			if(ismob(thing))
 				thing.investigate_log("deleted through cargo export",INVESTIGATE_CARGO)
 			qdel(thing)
@@ -76,6 +80,10 @@ Credit dupes that require a lot of manual work shouldn't be removed, unless they
 				report.exported_atoms += " [thing.name]"
 				break
 		if(!dry_run && (sold || delete_unsold))
+			if(isobj(thing) && !sold)
+				var/obj/condition = thing
+				if(condition.resistance_flags & INDESTRUCTIBLE)
+					continue
 			if(ismob(thing))
 				thing.investigate_log("deleted through cargo export",INVESTIGATE_CARGO)
 			qdel(thing)
