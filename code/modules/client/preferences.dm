@@ -44,7 +44,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/ghost_accs = GHOST_ACCS_DEFAULT_OPTION
 	var/ghost_others = GHOST_OTHERS_DEFAULT_OPTION
 	var/preferred_map = null
-	var/pda_style = MONO
+	var/pda_theme = THEME_NTOS
 	var/pda_color = "#808000"
 
 	// Custom Keybindings
@@ -115,6 +115,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	//we couldn't load character data so just randomize the character appearance + name
 	active_character = character_saves[1]
+	var/fallback_default_species = CONFIG_GET(string/fallback_default_species)
+	if(!active_character.pref_species && fallback_default_species != "random")
+		var/datum/species/spath = GLOB.species_list[fallback_default_species || "human"]
+		active_character.pref_species = new spath
 	active_character.randomise()		//let's create a random character then - rather than a fat, bald and naked man.
 	active_character.real_name = active_character.pref_species.random_name(active_character.gender, TRUE)
 	if(!loaded_preferences_successfully)
@@ -603,8 +607,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<b>Action Buttons:</b> <a href='?_src_=prefs;preference=action_buttons'>[(toggles2 & PREFTOGGLE_2_LOCKED_BUTTONS) ? "Locked In Place" : "Unlocked"]</a><br>"
 			dat += "<b>Hotkey Mode:</b> <a href='?_src_=prefs;preference=hotkeys'>[(toggles2 & PREFTOGGLE_2_HOTKEYS) ? "Hotkeys" : "Default"]</a><br>"
 			dat += "<br>"
-			dat += "<b>PDA Color:</b> <span style='border:1px solid #161616; background-color: [pda_color];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=pda_color;task=input'>Change</a><BR>"
-			dat += "<b>PDA Style:</b> <a href='?_src_=prefs;task=input;preference=pda_style'>[pda_style]</a><br>"
+			dat += "<b>PDA Theme:</b> <a href='?_src_=prefs;task=input;preference=pda_theme'>[theme_name_for_id(pda_theme)]</a><br>"
+			dat += "<b>PDA Classic Color:</b> <span style='border:1px solid #161616; background-color: [pda_color];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=pda_color;task=input'>Change</a><BR>"
 			dat += "<br>"
 			dat += "<b>Crew Objectives:</b> <a href='?_src_=prefs;preference=crewobj'>[(toggles2 & PREFTOGGLE_2_CREW_OBJECTIVES) ? "Yes" : "No"]</a><br>"
 			dat += "<br>"
@@ -815,6 +819,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<br>"
 			dat += "<b>Play Admin MIDIs:</b> <a href='?_src_=prefs;preference=hear_midis'>[(toggles & PREFTOGGLE_SOUND_MIDI) ? "Enabled":"Disabled"]</a><br>"
 			dat += "<b>Play Lobby Music:</b> <a href='?_src_=prefs;preference=lobby_music'>[(toggles & PREFTOGGLE_SOUND_LOBBY) ? "Enabled":"Disabled"]</a><br>"
+			dat += "<b>Play Game Soundtrack:</b> <a href='?_src_=prefs;preference=soundtrack'>[(toggles2 & PREFTOGGLE_2_SOUNDTRACK) ? "Enabled":"Disabled"]</a><br>"
 			dat += "<b>See Pull Requests:</b> <a href='?_src_=prefs;preference=pull_requests'>[(chat_toggles & CHAT_PULLR) ? "Enabled":"Disabled"]</a><br>"
 			dat += "<br>"
 
@@ -887,7 +892,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	dat += "</center>"
 
 	winshow(user, "preferences_window", TRUE)
-	var/datum/browser/popup = new(user, "preferences_browser", "<div align='center'>Character Setup</div>", 640, 770)
+	var/datum/browser/popup = new(user, "preferences_browser", "<div align='center'>Character Setup</div>", 640, 830)
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
 	onclose(user, "preferences_window", src)
@@ -925,7 +930,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 		var/datum/job/overflow = SSjob.GetJob(SSjob.overflow_role)
 
-		for(var/datum/job/job in sortList(SSjob.occupations, /proc/cmp_job_display_asc))
+		for(var/datum/job/job in sortList(SSjob.occupations, GLOBAL_PROC_REF(cmp_job_display_asc)))
 			if(job.gimmick) //Gimmick jobs run off of a single pref
 				continue
 			index += 1
@@ -1706,7 +1711,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if("asaycolor")
 					var/new_asaycolor = input(user, "Choose your ASAY color:", "Game Preference",asaycolor) as color|null
 					if(new_asaycolor)
-						asaycolor = new_asaycolor
+						asaycolor = sanitize_ooccolor(new_asaycolor)
 
 				if("bag")
 					var/new_backbag = input(user, "Choose your character's style of bag:", "Character Preference")  as null|anything in GLOB.backbaglist
@@ -1764,12 +1769,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						UI_style = pickedui
 						if (parent && parent.mob && parent.mob.hud_used)
 							parent.mob.hud_used.update_ui_style(ui_style2icon(UI_style))
-				if("pda_style")
-					var/pickedPDAStyle = input(user, "Choose your PDA style.", "Character Preference", pda_style)  as null|anything in GLOB.pda_styles
+				if("pda_theme")
+					var/pickedPDAStyle = input(user, "Choose your default PDA theme.", "Character Preference", pda_theme)  as null|anything in GLOB.ntos_device_themes_default
 					if(pickedPDAStyle)
-						pda_style = pickedPDAStyle
+						pda_theme = GLOB.ntos_device_themes_default[pickedPDAStyle]
 				if("pda_color")
-					var/pickedPDAColor = input(user, "Choose your PDA Interface color.", "Character Preference", pda_color) as color|null
+					var/pickedPDAColor = input(user, "Choose your default Thinktronic Classic theme background color.", "Character Preference", pda_color) as color|null
 					if(pickedPDAColor)
 						pda_color = pickedPDAColor
 				if ("see_balloon_alerts")
@@ -1866,6 +1871,13 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						user.client.playtitlemusic()
 					else
 						user.stop_sound_channel(CHANNEL_LOBBYMUSIC)
+
+				if("soundtrack")
+					toggles2 ^= PREFTOGGLE_2_SOUNDTRACK
+					if((toggles2 & PREFTOGGLE_2_SOUNDTRACK))
+						user.play_current_soundtrack()
+					else
+						user.stop_sound_channel(CHANNEL_SOUNDTRACK)
 
 				if("ghost_ears")
 					chat_toggles ^= CHAT_GHOSTEARS
