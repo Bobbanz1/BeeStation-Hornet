@@ -58,3 +58,11 @@
 #define ASSEMBLY_THIRD_STEP     2
 #define ASSEMBLY_FOURTH_STEP    3
 #define ASSEMBLY_FIFTH_STEP     4
+
+//AI Custom Holographic Defines
+#define CUSTOM_HOLOFORM_DELAY 10 SECONDS //prevents spamming to make lag. it's pretty expensive to do this.
+
+#define HOLOFORM_FILTER_AI "FILTER_AI"
+#define HOLOFORM_FILTER_STATIC "FILTER_STATIC"
+
+#define DUMMY_HUMAN_SLOT_HOLOFORM "dummy_holoform_generation" //only reason this is here is because the _HELPERS/icons.dm file is loaded after _HELPERS/custom_holoforms.dm

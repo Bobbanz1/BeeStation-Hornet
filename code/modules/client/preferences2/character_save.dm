@@ -273,12 +273,7 @@
 	if(!parent)
 		CRASH("Someone called update_preview_icon() without passing a client.")
 	// Determine what job is marked as 'High' priority, and dress them up as such.
-	var/datum/job/previewJob
-	var/highest_pref = 0
-	for(var/job in job_preferences)
-		if(job_preferences[job] > highest_pref)
-			previewJob = SSjob.GetJob(job)
-			highest_pref = job_preferences[job]
+	var/datum/job/previewJob = get_highest_job()
 
 	if(previewJob)
 		// Silicons only need a very basic preview since there is no customization for them.
@@ -495,3 +490,12 @@
 		character.update_body_parts(TRUE)
 
 	character.dna.update_body_size()
+
+/datum/character_save/proc/get_highest_job()
+	var/highest_pref = 0
+	var/datum/job/highest_job
+	for(var/job in job_preferences)
+		if(job_preferences[job] > highest_pref)
+			highest_job = SSjob.GetJob(job)
+			highest_pref = job_preferences[job]
+	return highest_job

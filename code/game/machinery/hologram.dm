@@ -507,7 +507,7 @@ For the other part of the code, check silicon say.dm. Particularly robot talk.*/
 	else
 		return FALSE
 
-/obj/machinery/holopad/proc/move_hologram(mob/living/user, turf/new_turf)
+/obj/machinery/holopad/proc/move_hologram(mob/living/user, turf/new_turf, direction)
 	if(LAZYLEN(masters) && masters[user])
 		var/obj/effect/overlay/holo_pad_hologram/holo = masters[user]
 		var/transfered = FALSE
@@ -519,6 +519,8 @@ For the other part of the code, check silicon say.dm. Particularly robot talk.*/
 				transfered = TRUE
 		//All is good.
 		holo.abstract_move(new_turf)
+		if(direction)
+			holo.setDir(direction)
 		if(!transfered)
 			update_holoray(user,new_turf)
 	return TRUE

@@ -73,7 +73,7 @@
 // Use this when setting the ai_eye's location.
 // It will also stream the chunk that the new loc is in.
 
-/mob/camera/ai_eye/proc/setLoc(destination, force_update = FALSE)
+/mob/camera/ai_eye/proc/setLoc(destination, force_update = FALSE, dir)
 	if(ai)
 		if(!isturf(ai.loc))
 			return
@@ -92,7 +92,7 @@
 		//Holopad
 		if(istype(ai.current, /obj/machinery/holopad))
 			var/obj/machinery/holopad/H = ai.current
-			H.move_hologram(ai, destination)
+			H.move_hologram(ai, destination, dir)
 		if(ai.camera_light_on)
 			ai.light_cameras()
 		if(ai.master_multicam)
@@ -162,7 +162,7 @@
 	for(var/i = 0; i < max(user.sprint, initial); i += 20)
 		var/turf/step = get_turf(get_step(user.eyeobj, direct))
 		if(step)
-			user.eyeobj.setLoc(step)
+			user.eyeobj.setLoc(step, null, direct)
 
 	user.cooldown = world.timeofday + 5
 	if(user.acceleration)
